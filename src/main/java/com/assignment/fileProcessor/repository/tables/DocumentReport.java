@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DocumentReport extends TableImpl<DocumentReportRecord> {
 
-    private static final long serialVersionUID = -1226349293;
+    private static final long serialVersionUID = 1553951745;
 
     /**
      * The reference instance of <code>medical.document_report</code>
@@ -65,7 +65,7 @@ public class DocumentReport extends TableImpl<DocumentReportRecord> {
     /**
      * The column <code>medical.document_report.doctor_id</code>.
      */
-    public final TableField<DocumentReportRecord, Integer> DOCTOR_ID = createField("doctor_id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<DocumentReportRecord, Integer> DOCTOR_ID = createField("doctor_id", org.jooq.impl.SQLDataType.INTEGER, this, "");
 
     /**
      * The column <code>medical.document_report.process_execution_time</code>.
@@ -75,7 +75,7 @@ public class DocumentReport extends TableImpl<DocumentReportRecord> {
     /**
      * The column <code>medical.document_report.error</code>.
      */
-    public final TableField<DocumentReportRecord, String> ERROR = createField("error", org.jooq.impl.SQLDataType.VARCHAR.length(50), this, "");
+    public final TableField<DocumentReportRecord, String> ERROR = createField("error", org.jooq.impl.SQLDataType.VARCHAR.length(150), this, "");
 
     /**
      * The column <code>medical.document_report.document_source</code>.

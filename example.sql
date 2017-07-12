@@ -59,9 +59,9 @@ CREATE SEQUENCE "medical"."report_id_seq";
 CREATE TABLE "medical"."document_report" (
     "report_id"                     INT             DEFAULT nextval('medical.report_id_seq'),
     "execution_time"                TIMESTAMP       NOT NULL,
-    "doctor_id"                     INT             NOT NULL,
+    "doctor_id"                     INT             ,
     "process_execution_time"        TIMESTAMP       NOT NULL,
-    "error"                         VARCHAR(50)     ,
+    "error"                         VARCHAR(150)    ,
     "document_source"               BOOLEAN         NOT NULL,
     
     CONSTRAINT "document_report_pkey"               PRIMARY KEY ("report_id"),

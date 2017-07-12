@@ -1,14 +1,18 @@
 package com.assignment.fileProcessor.logic;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Timestamp;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.jooq.impl.DSL;
 import org.jooq.DSLContext;
-import org.jooq.Record;
+import org.jooq.InsertSetMoreStep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
@@ -27,14 +31,18 @@ public class FileParser {
 	
 	@Autowired
 	private DSLContext context;
-
+	
 	/**
 	 * @param file input file (XML)
 	 * @param httpRequest is the file source a http request
 	 */
 	public void parseFile(File file, boolean httpRequest) {
-		Record documentReportRecord = new DocumentReportRecord();
-		documentReportRecord.set(DOCUMENT_REPORT.DOCUMENT_SOURCE, httpRequest);
+		
+		InsertSetMoreStep<DocumentReportRecord> insertStep = this.context.insertInto(DOCUMENT_REPORT)
+					.set(DOCUMENT_REPORT.DOCUMENT_SOURCE, httpRequest);
+		RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+		insertStep.set(DOCUMENT_REPORT.EXECUTION_TIME, new Timestamp(runtimeMXBean.getStartTime()));
+		insertStep.set(DOCUMENT_REPORT.PROCESS_EXECUTION_TIME, DSL.currentTimestamp());
 		
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -45,25 +53,25 @@ public class FileParser {
 			
 			int doctorId = Integer.parseInt(doctor.getAttribute("id"));
 			String departmentName = doctor.getAttribute("department");
-			documentReportRecord.set(DOCUMENT_REPORT.DOCTOR_ID, doctorId);
 			
-			Record record = new DepartmentRecord();
 			// check if the DEPARTMENT.NAME value already exists
-			Integer departmentId = context.fetchValue(context.select(DEPARTMENT.DEPARTMENT_ID).from(DEPARTMENT).where(DEPARTMENT.NAME.eq(departmentName)));
+			Integer departmentId = this.context.fetchValue(this.context.select(DEPARTMENT.DEPARTMENT_ID).from(DEPARTMENT).where(DEPARTMENT.NAME.eq(departmentName)));
 			if (departmentId == null) {
 				// insert row into the table DEPARTMENT
-				context.insertInto(DEPARTMENT, DEPARTMENT.NAME)
+				this.context.insertInto(DEPARTMENT, DEPARTMENT.NAME)
 						.values(departmentName)
 						.execute();
-				departmentId = record.get(DEPARTMENT_ID_SEQ.currval());
+				departmentId = this.context.currval(DEPARTMENT_ID_SEQ);
 			}
 			
 			// insert row into the table DOCTOR
-			context.insertInto(DOCTOR, DOCTOR.DOCTOR_ID, DOCTOR.DEPARTMENT_ID)
+			this.context.insertInto(DOCTOR, DOCTOR.DOCTOR_ID, DOCTOR.DEPARTMENT_ID)
 					.values(doctorId, departmentId)
 					.onConflict(DOCTOR.DOCTOR_ID)
 					.doNothing()
 					.execute();
+			
+			insertStep.set(DOCUMENT_REPORT.DOCTOR_ID, doctorId);
 			
 			Element patients = (Element) doctor.getElementsByTagName("patients").item(0);
 			NodeList patientList = patients.getElementsByTagName("patient");
@@ -75,7 +83,7 @@ public class FileParser {
 				String lastName = patient.getElementsByTagName("last_name").item(0).getTextContent();
 				
 				// insert row into the table PATIENT 
-				context.insertInto(PATIENT, PATIENT.PATIENT_ID, PATIENT.FIRST_NAME, PATIENT.LAST_NAME)
+				this.context.insertInto(PATIENT, PATIENT.PATIENT_ID, PATIENT.FIRST_NAME, PATIENT.LAST_NAME)
 						.values(patientId, firstName, lastName)
 						.onConflict(PATIENT.PATIENT_ID)
 						.doNothing()
@@ -87,40 +95,39 @@ public class FileParser {
 					Element disease = (Element) diseaseList.item(j);
 					String diseaseName = disease.getTextContent();
 					
-					record = new DiseaseRecord();
 					// check if the DISEASE.NAME value already exists
-					Integer diseaseId = context.fetchValue(context.select(DISEASE.DISEASE_ID).from(DISEASE).where(DISEASE.NAME.eq(diseaseName)));
+					Integer diseaseId = this.context.fetchValue(this.context.select(DISEASE.DISEASE_ID).from(DISEASE).where(DISEASE.NAME.eq(diseaseName)));
 					if (diseaseId == null) {
 						// insert row into the table DISEASE
-						context.insertInto(DISEASE, DISEASE.NAME)
+						this.context.insertInto(DISEASE, DISEASE.NAME)
 								.values(diseaseName)
 								.execute();
-						diseaseId = record.get(DISEASE_ID_SEQ.currval());
+						diseaseId = this.context.currval(DISEASE_ID_SEQ);
 					}
 					// check if the MEDICAL_RECORD row already exists
-					if (context.select(MEDICAL_RECORD.DOCTOR_ID, MEDICAL_RECORD.PATIENT_ID, MEDICAL_RECORD.DISEASE_ID)
+					if (this.context.select(MEDICAL_RECORD.DOCTOR_ID, MEDICAL_RECORD.PATIENT_ID, MEDICAL_RECORD.DISEASE_ID)
 								.from(MEDICAL_RECORD)
 								.where(MEDICAL_RECORD.DOCTOR_ID.eq(doctorId), MEDICAL_RECORD.PATIENT_ID.eq(patientId), MEDICAL_RECORD.DISEASE_ID.eq(diseaseId))
 								.fetch().isEmpty()) {
 						// insert row into the table MEDICAL_RECORD
-						context.insertInto(MEDICAL_RECORD, MEDICAL_RECORD.DOCTOR_ID, MEDICAL_RECORD.PATIENT_ID, MEDICAL_RECORD.DISEASE_ID)
+						this.context.insertInto(MEDICAL_RECORD, MEDICAL_RECORD.DOCTOR_ID, MEDICAL_RECORD.PATIENT_ID, MEDICAL_RECORD.DISEASE_ID)
 						.values(doctorId, patientId, diseaseId)
 						.execute();
 					}
 				}
 			}
 			
-			System.out.println(context.selectFrom(DEPARTMENT).fetch());
-			System.out.println(context.selectFrom(DOCTOR).fetch());
-			System.out.println(context.selectFrom(PATIENT).fetch());
-			System.out.println(context.selectFrom(DISEASE).fetch());
-			System.out.println(context.selectFrom(MEDICAL_RECORD).fetch());
+			System.out.println(this.context.selectFrom(DEPARTMENT).fetch());
+			System.out.println(this.context.selectFrom(DOCTOR).fetch());
+			System.out.println(this.context.selectFrom(PATIENT).fetch());
+			System.out.println(this.context.selectFrom(DISEASE).fetch());
+			System.out.println(this.context.selectFrom(MEDICAL_RECORD).fetch());
 			
 			Files.move(file.toPath(), output.resolve(file.getName()));
 		} catch (Exception e1) {
 			// TODO proper error handling
 			e1.printStackTrace();
-			documentReportRecord.set(DOCUMENT_REPORT.ERROR, e1.getClass().getName());
+			insertStep.set(DOCUMENT_REPORT.ERROR, e1.getClass().getName());
 			
 			try {
 				Files.move(file.toPath(), error.resolve(file.getName()));
@@ -128,6 +135,8 @@ public class FileParser {
 				e2.printStackTrace();
 			}
 		}
-		//context.insertInto(DOCUMENT_REPORT).values(documentReportRecord).execute();
+		insertStep.execute();
+		
+		System.out.println(this.context.selectFrom(DOCUMENT_REPORT).fetch());
 	}
 }

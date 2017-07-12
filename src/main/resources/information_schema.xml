@@ -189,7 +189,7 @@
             <numeric_precision>32</numeric_precision>
             <numeric_scale>0</numeric_scale>
             <ordinal_position>3</ordinal_position>
-            <is_nullable>false</is_nullable>
+            <is_nullable>true</is_nullable>
         </column>
         <column>
             <table_catalog></table_catalog>
@@ -209,7 +209,7 @@
             <table_name>document_report</table_name>
             <column_name>error</column_name>
             <data_type>character varying</data_type>
-            <character_maximum_length>50</character_maximum_length>
+            <character_maximum_length>150</character_maximum_length>
             <numeric_precision>0</numeric_precision>
             <numeric_scale>0</numeric_scale>
             <ordinal_position>5</ordinal_position>
@@ -444,7 +444,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33256_1_not_null</constraint_name>
+            <constraint_name>34230_34233_1_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -453,7 +453,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33256_2_not_null</constraint_name>
+            <constraint_name>34230_34233_2_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -462,7 +462,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33274_1_not_null</constraint_name>
+            <constraint_name>34230_34251_1_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -471,7 +471,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33274_2_not_null</constraint_name>
+            <constraint_name>34230_34251_2_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -480,7 +480,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33274_3_not_null</constraint_name>
+            <constraint_name>34230_34251_3_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -489,7 +489,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33281_1_not_null</constraint_name>
+            <constraint_name>34230_34258_1_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -498,7 +498,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33281_2_not_null</constraint_name>
+            <constraint_name>34230_34258_2_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -507,7 +507,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33291_1_not_null</constraint_name>
+            <constraint_name>34230_34268_1_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -516,7 +516,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33291_2_not_null</constraint_name>
+            <constraint_name>34230_34268_2_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -525,7 +525,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33291_3_not_null</constraint_name>
+            <constraint_name>34230_34268_3_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -534,7 +534,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33291_4_not_null</constraint_name>
+            <constraint_name>34230_34268_4_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -543,7 +543,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33264_1_not_null</constraint_name>
+            <constraint_name>34230_34241_1_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -552,7 +552,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33264_2_not_null</constraint_name>
+            <constraint_name>34230_34241_2_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -561,7 +561,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33316_1_not_null</constraint_name>
+            <constraint_name>34230_34293_1_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -570,7 +570,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33316_2_not_null</constraint_name>
+            <constraint_name>34230_34293_2_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -579,7 +579,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33316_3_not_null</constraint_name>
+            <constraint_name>34230_34293_4_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
@@ -588,16 +588,7 @@
         <table_constraint>
             <constraint_catalog></constraint_catalog>
             <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33316_4_not_null</constraint_name>
-            <constraint_type>CHECK</constraint_type>
-            <table_catalog></table_catalog>
-            <table_schema>medical</table_schema>
-            <table_name>document_report</table_name>
-        </table_constraint>
-        <table_constraint>
-            <constraint_catalog></constraint_catalog>
-            <constraint_schema>medical</constraint_schema>
-            <constraint_name>33253_33316_6_not_null</constraint_name>
+            <constraint_name>34230_34293_6_not_null</constraint_name>
             <constraint_type>CHECK</constraint_type>
             <table_catalog></table_catalog>
             <table_schema>medical</table_schema>
