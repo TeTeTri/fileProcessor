@@ -17,42 +17,45 @@ import com.assignment.fileProcessor.logic.FileParser;
 @RestController
 public class WebController implements ErrorController {
 	private static final String ERRORPATH = "/error";
-	
+
 	@Autowired
 	private FileParser parser;
-	
+
 	@GetMapping("/")
 	public String post() {
 		return "Hello World!";
 	}
-	
+
 	@GetMapping(ERRORPATH)
 	public String error() {
 		return "Oops!";
 	}
-	
+
 	@Override
 	public String getErrorPath() {
 		return ERRORPATH;
 	}
-	
+
 	@PostMapping("/")
 	public String readFile(@RequestParam(value = "file") MultipartFile inputFile) {
 		String message;
 		try {
+			// create a local copy of the recieved file
 			String filename = inputFile.getOriginalFilename();
 			File localFile = new File(filename);
 			FileOutputStream fos = new FileOutputStream(localFile);
 			fos.write(inputFile.getBytes());
 			fos.close();
-			// TODO propper logging and error message on parsing failure
+
 			System.out.printf("Parsing file %s from http POST!\n", filename);
-			this.parser.parseFile(localFile, true);
-			message = String.format("You successfully uploaded the file %s!\n", filename);
+			message = this.parser.parseFile(localFile, true);
+			if (message == null) {
+				message = String.format("You successfully uploaded the file %s!\n", filename);
+			}
 		} catch (IOException e) {
 			message = e.getMessage();
 		}
-		
+
 		return message;
 	}
 }
