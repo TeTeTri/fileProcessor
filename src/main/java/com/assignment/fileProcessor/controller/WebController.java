@@ -1,61 +1,45 @@
 package com.assignment.fileProcessor.controller;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ErrorController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 
-import com.assignment.fileProcessor.logic.FileParser;
+import com.assignment.fileProcessor.logic.DoctorDTO;
+import com.assignment.fileProcessor.logic.DataManager;
 
 @RestController
 public class WebController implements ErrorController {
-	private static final String ERRORPATH = "/error";
+	private static final String ERROR_PATH = "/error";
+
+	private static final Logger LOG = LoggerFactory.getLogger(WebController.class);
 
 	@Autowired
-	private FileParser parser;
+	private DataManager manager;
 
 	@GetMapping("/")
-	public String post() {
+	public String get() {
 		return "Hello World!";
 	}
 
-	@GetMapping(ERRORPATH)
+	@GetMapping(ERROR_PATH)
 	public String error() {
 		return "Oops!";
 	}
 
 	@Override
 	public String getErrorPath() {
-		return ERRORPATH;
+		return ERROR_PATH;
 	}
 
 	@PostMapping("/")
-	public String readFile(@RequestParam(value = "file") MultipartFile inputFile) {
-		String message;
-		try {
-			// create a local copy of the recieved file
-			String filename = inputFile.getOriginalFilename();
-			File localFile = new File(filename);
-			FileOutputStream fos = new FileOutputStream(localFile);
-			fos.write(inputFile.getBytes());
-			fos.close();
-
-			System.out.printf("Parsing file %s from http POST!\n", filename);
-			message = this.parser.parseFile(localFile, true);
-			if (message == null) {
-				message = String.format("You successfully uploaded the file %s!\n", filename);
-			}
-		} catch (IOException e) {
-			message = e.getMessage();
+	public String readFile(@RequestParam(name = "file") DoctorDTO doctorDTO) {
+		LOG.info("Received file from http POST!");
+		String message = this.manager.enterData(doctorDTO, true);
+		if (message == null) {
+			message = "You successfully uploaded the file!";
 		}
-
 		return message;
 	}
 }
