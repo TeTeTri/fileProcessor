@@ -1,0 +1,33 @@
+﻿{
+    "id": "A0", 
+    "department": "marand",
+    "patients": [
+        {
+            "id": "a",
+            "first_name": "Bostjan",
+            "last_name": "Lah",
+            "diseases": [
+                "nice_to_people",
+                "long_legs"
+            ]
+        },
+        {
+            "id": "b",
+            "first_name": "Boris",
+            "last_name": "Marn",
+            "diseases": [
+                "used_to_have_dredds",
+                "nice_to_people"
+            ]
+        },
+        {
+            "id": "c",
+            "first_name": "Anze",
+            "last_name": "Droljc",
+            "diseases": [
+                "chocaholic",
+                "great_haircut"
+            ]
+        }
+    ]
+}

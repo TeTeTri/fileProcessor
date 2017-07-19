@@ -1,0 +1,31 @@
+﻿<doctor department="marand" id="A0">
+    <patients>
+        <patient>
+            <id>a</id>
+            <first_name>Bostjan</first_name>
+            <last_name>Lah</last_name>
+            <diseases>
+                <disease>nice_to_people</disease>
+                <disease>long_legs</disease>
+            </diseases>
+        </patient>
+        <patient>
+            <id>b</id>
+            <first_name>Boris</first_name>
+            <last_name>Marn</last_name>
+            <diseases>
+                <disease>used_to_have_dredds</disease>
+                <disease>nice_to_people</disease>
+            </diseases>
+        </patient>
+        <patient>
+            <id>c</id>
+            <first_name>Anze</first_name>
+            <last_name>Droljc</last_name>
+            <diseases>
+                <disease>chocaholic</disease>
+                <disease>great_haircut</disease>
+            </diseases>
+        </patient>
+    </patients>
+</doctor>

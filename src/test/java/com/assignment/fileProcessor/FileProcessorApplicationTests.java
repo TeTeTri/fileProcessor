@@ -1,24 +1,21 @@
 package com.assignment.fileProcessor;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.jooq.DSLContext;
-import org.jooq.Queries;
-import org.jooq.Query;
-import org.junit.Test;
+import java.io.FileInputStream;
+import org.jooq.*;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.assignment.fileProcessor.repository.Tables.*;
+import static com.assignment.fileProcessor.repository.Sequences.*;
 
-import com.assignment.fileProcessor.controller.WebController;
 import com.assignment.fileProcessor.repository.Medical;
 
 @RunWith(SpringRunner.class)
@@ -26,58 +23,81 @@ import com.assignment.fileProcessor.repository.Medical;
 @AutoConfigureMockMvc
 public class FileProcessorApplicationTests {
 	@Autowired
-	private WebController controller;
-	
-	@Autowired
 	private DSLContext context;
-	
+
 	@Autowired
 	private MockMvc mockMvc;
-	
-	@Test
-	public void contextLoads() {
-		assertThat(this.controller).isNotNull();
-		assertThat(this.context).isNotNull();
+
+	@Before
+	public void databaseSetup() {		
+		Queries ddl = this.context.ddl(Medical.MEDICAL);
+		for (Query query : ddl.queries()) {
+			this.context.execute(query);
+		}
+		this.context.createSequence(DEPARTMENT_ID_SEQ).execute();
+		this.context.createSequence(DISEASE_ID_SEQ).execute();
+		this.context.createSequence(RECORD_ID_SEQ).execute();
+		this.context.createSequence(REPORT_ID_SEQ).execute();
 	}
-	
+
+	@After
+	public void databaseTeardown() {
+		this.context.dropSchema(Medical.MEDICAL).execute();
+	}
+
 	@Test
 	public void shouldReturnDefaultMessage() throws Exception {
 		this.mockMvc.perform(get("/")).andExpect(status().isOk())
 					.andExpect(content().string("Hello World!"));
 	}
-	
+
 	@Test
-	public void databaseInitiationAndDataInsertion() {
-		Queries ddl = this.context.ddl(Medical.MEDICAL);
-		for (Query query : ddl.queries()) {
-			this.context.execute(query);
-		}
-		
-		this.context.insertInto(DEPARTMENT).values(1, "marand").execute();
-		
-		this.context.insertInto(DOCTOR).values(100, 1).execute();
-		
-		this.context.insertInto(PATIENT).values(1, "Bostjan", "Lah").execute();
-		this.context.insertInto(PATIENT).values(2, "Boris", "Marn").execute();
-		this.context.insertInto(PATIENT).values(3, "Anze", "Droljc").execute();
-		
-		this.context.insertInto(DISEASE).values(1, "nice_to_people").execute();
-		this.context.insertInto(DISEASE).values(2, "long_legs").execute();
-		this.context.insertInto(DISEASE).values(3, "used_to_have_dredds").execute();
-		this.context.insertInto(DISEASE).values(4, "chocaholic").execute();
-		this.context.insertInto(DISEASE).values(5, "great_haircut").execute();
-		
-		this.context.insertInto(MEDICAL_RECORD).values(1, 100, 1, 1).execute();
-		this.context.insertInto(MEDICAL_RECORD).values(2, 100, 1, 2).execute();
-		this.context.insertInto(MEDICAL_RECORD).values(3, 100, 2, 3).execute();
-		this.context.insertInto(MEDICAL_RECORD).values(4, 100, 2, 1).execute();
-		this.context.insertInto(MEDICAL_RECORD).values(5, 100, 3, 4).execute();
-		this.context.insertInto(MEDICAL_RECORD).values(6, 100, 3, 5).execute();
-		
-		System.out.println(this.context.selectFrom(DEPARTMENT).fetch());
-		System.out.println(this.context.selectFrom(DOCTOR).fetch());
-		System.out.println(this.context.selectFrom(PATIENT).fetch());
-		System.out.println(this.context.selectFrom(DISEASE).fetch());
-		System.out.println(this.context.selectFrom(MEDICAL_RECORD).fetch());
+	public void badRequestOnEmptyPost() throws Exception {
+		this.mockMvc.perform(post("/")).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void badRequestOnEmptyFilePost() throws Exception {
+		MockMultipartFile theFile = new MockMultipartFile("file", "foo.xml", "application/xml", new byte[0]);
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isBadRequest());
+
+		theFile = new MockMultipartFile("file", "bar.json", "application/json", new byte[0]);
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void badRequestOnSparseFilePost() throws Exception {
+		MockMultipartFile theFile = new MockMultipartFile("file", "foo.xml", "application/xml", "<doctor></doctor>".getBytes());
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isBadRequest());
+
+		theFile = new MockMultipartFile("file", "bar.json", "application/json", "{}".getBytes());
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isBadRequest());
+	}
+
+	@Test // wrong file structure
+	public void badRequestOnMalformedFilePost() throws Exception {
+		MockMultipartFile theFile = new MockMultipartFile("file", "foo.xml", "application/xml", "{}".getBytes());
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isBadRequest());
+
+		theFile = new MockMultipartFile("file", "bar.json", "application/json", "<doctor></doctor>".getBytes());
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isBadRequest());
+	}
+
+	@Test // correct file structure, wrong values
+	public void badRequestOnFaultyFilePost() throws Exception {
+		MockMultipartFile theFile = new MockMultipartFile("file", "faulty.xml", "application/xml", new FileInputStream("faulty.xml"));
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isBadRequest());
+
+		theFile = new MockMultipartFile("file", "faulty.json", "application/json", new FileInputStream("faulty.json"));
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void successfulExampleFilePost() throws Exception {
+		MockMultipartFile theFile = new MockMultipartFile("file", "example.xml", "application/xml", new FileInputStream("example.xml"));
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isOk()).andExpect(content().string("You successfully uploaded the file!"));
+
+		theFile = new MockMultipartFile("file", "example.json", "", new FileInputStream("example.json"));
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isOk()).andExpect(content().string("You successfully uploaded the file!"));
 	}
 }

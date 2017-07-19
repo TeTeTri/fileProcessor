@@ -20,7 +20,7 @@ public final class MultipartFileToDoctorDTO implements Converter<MultipartFile, 
 					xmlMapper.readValue(source.getBytes(), DoctorDTO.class) :
 					jsonMapper.readValue(source.getBytes(), DoctorDTO.class);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//System.out.println(e.toString());
 		}
 		return null;
 	}

@@ -2,6 +2,7 @@ package com.assignment.fileProcessor.controller;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -23,7 +24,7 @@ public class ScheduledTasks {
 	private static final File INPUT_FOLDER = new File("input");
 	private static final Path OUTPUT_FOLDER = new File("out").toPath();
 	private static final Path ERROR_FOLDER = new File("error").toPath();
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(ScheduledTasks.class);
 
 	@Autowired
@@ -31,30 +32,31 @@ public class ScheduledTasks {
 
 	@Autowired
 	private DataManager manager;
-	
+
 	@Scheduled(fixedRate = 90000)
 	public void readFiles() {
 		LOG.info("Looking for files in the input folder!");
 		for (File localFile : INPUT_FOLDER.listFiles()) {
 			if (localFile.isFile()) {
-				String message = null;
+				String filename = localFile.getName();
 				try {
-					String filename = localFile.getName();
+					// convert file to doctorDTO and enter its data
 					String contentType = filename.endsWith(".xml") ? "application/xml" : "application/json";
 					MultipartFile mpf = new MockMultipartFile("file", filename, contentType, new FileInputStream(localFile));
-					message = this.manager.enterData(converter.convert(mpf), false);
-					if (message == null) {
-						// on success, move parsed file to the OUTPUT folder
-						Files.move(localFile.toPath(), OUTPUT_FOLDER.resolve(filename));
-						message = String.format("%s successfully parsed!", filename);
-					} else {
+					this.manager.enterData(converter.convert(mpf), false);
+
+					// on success, move parsed file to the OUTPUT folder
+					Files.move(localFile.toPath(), OUTPUT_FOLDER.resolve(filename));
+					LOG.info("{} successfully parsed!", filename);
+				} catch (Exception e) {
+					try {
 						// in case of error, move file to the ERROR folder
 						Files.move(localFile.toPath(), ERROR_FOLDER.resolve(filename));
+					} catch (IOException eIO) {
+						LOG.error(eIO.toString());
 					}
-				} catch (Exception e) {
-					message = e.toString();
+					LOG.error(e.toString());
 				}
-				LOG.info(message);
 			}
 		}
 	}

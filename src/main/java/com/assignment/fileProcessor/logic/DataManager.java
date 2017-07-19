@@ -5,6 +5,7 @@ import static com.assignment.fileProcessor.repository.Tables.*;
 
 import java.lang.management.ManagementFactory;
 import java.sql.Timestamp;
+import java.util.InputMismatchException;
 
 import org.jooq.DSLContext;
 import org.jooq.InsertSetMoreStep;
@@ -20,19 +21,25 @@ public class DataManager {
 
 	@Autowired
 	private DSLContext context;
-	
+
 	/**
 	 * @param doctorDTO doctor data transfer object
 	 * @param httpRequest is the data source a http request
+	 * 
+	 * @throws Exception in case of database errors
+	 * @throws InputMismatchException in case of malformed input
 	 */
-	public String enterData(DoctorDTO doctorDTO, boolean httpRequest) {
+	public void enterData(DoctorDTO doctorDTO, boolean httpRequest) throws InputMismatchException, Exception {
+		if (doctorDTO == null || doctorDTO.isEmpty()) {
+			throw new InputMismatchException("Incorrectly formatted input!");
+		}
 		// start building a DOCUMENT_REPORT record
 		InsertSetMoreStep<DocumentReportRecord> insertStep = this.context.insertInto(DOCUMENT_REPORT)
 					.set(DOCUMENT_REPORT.DOCUMENT_SOURCE, httpRequest)
 					.set(DOCUMENT_REPORT.EXECUTION_TIME, jvmStart)
 					.set(DOCUMENT_REPORT.PROCESS_EXECUTION_TIME, DSL.currentTimestamp());
 
-		String message = null;
+		Exception exception = null;
 		try {
 			// check if a row with DEPARTMENT.NAME value does not exists
 			Integer departmentId = this.context.fetchValue(this.context.select(DEPARTMENT.DEPARTMENT_ID).from(DEPARTMENT).where(DEPARTMENT.NAME.eq(doctorDTO.getDepartment())));
@@ -87,15 +94,15 @@ public class DataManager {
 					}
 				}
 			}
-
+/*
 			System.out.println(this.context.selectFrom(DEPARTMENT).fetch());
 			System.out.println(this.context.selectFrom(DOCTOR).fetch());
 			System.out.println(this.context.selectFrom(PATIENT).fetch());
 			System.out.println(this.context.selectFrom(DISEASE).fetch());
 			System.out.println(this.context.selectFrom(MEDICAL_RECORD).fetch());
-
+*/
 		} catch (Exception e) {
-			message = e.toString();
+			exception = e;
 			// add error message to the DOCUMENT_REPORT record 
 			insertStep.set(DOCUMENT_REPORT.ERROR, e.getClass().getName());
 		}
@@ -103,7 +110,11 @@ public class DataManager {
 		// insert the DOCUMENT_REPORT record
 		insertStep.execute();
 
-		System.out.println(this.context.selectFrom(DOCUMENT_REPORT).fetch());
-		return message;
+		//System.out.println(insertStep.toString());
+		//System.out.println(this.context.selectFrom(DOCUMENT_REPORT).fetch());
+
+		if (exception != null) {
+			throw exception;
+		}
 	}
 }
