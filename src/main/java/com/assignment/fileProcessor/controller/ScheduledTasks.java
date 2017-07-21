@@ -16,7 +16,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.assignment.fileProcessor.logic.DataManager;
-import com.assignment.fileProcessor.logic.MultipartFileToDoctorDTO;
+import com.assignment.fileProcessor.logic.MultipartFileToDoctor;
+import com.assignment.fileProcessor.repository.Doctor;
 
 @Component
 @Profile("!test")
@@ -28,8 +29,8 @@ public class ScheduledTasks {
 	private static final Logger LOG = LoggerFactory.getLogger(ScheduledTasks.class);
 
 	@Autowired
-	MultipartFileToDoctorDTO converter;
-
+	private MultipartFileToDoctor converter;
+	
 	@Autowired
 	private DataManager manager;
 
@@ -40,10 +41,11 @@ public class ScheduledTasks {
 			if (localFile.isFile()) {
 				String filename = localFile.getName();
 				try {
-					// convert file to doctorDTO and enter its data
+					// convert file to doctor DTO and enter its data
 					String contentType = filename.endsWith(".xml") ? "application/xml" : "application/json";
 					MultipartFile mpf = new MockMultipartFile("file", filename, contentType, new FileInputStream(localFile));
-					this.manager.enterData(converter.convert(mpf), false);
+					Doctor doctor = converter.convert(mpf);
+					this.manager.enterData(doctor, false);
 
 					// on success, move parsed file to the OUTPUT folder
 					Files.move(localFile.toPath(), OUTPUT_FOLDER.resolve(filename));

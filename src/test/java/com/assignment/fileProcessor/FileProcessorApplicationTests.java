@@ -1,48 +1,41 @@
 package com.assignment.fileProcessor;
 
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.io.FileInputStream;
-import org.jooq.*;
+
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static com.assignment.fileProcessor.repository.Sequences.*;
-
-import com.assignment.fileProcessor.repository.Medical;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 public class FileProcessorApplicationTests {
 	@Autowired
-	private DSLContext context;
+	private WebApplicationContext webContext;
 
-	@Autowired
+	@Rule
+	public JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation("restDocumentation");
+
 	private MockMvc mockMvc;
 
 	@Before
-	public void databaseSetup() {		
-		Queries ddl = this.context.ddl(Medical.MEDICAL);
-		for (Query query : ddl.queries()) {
-			this.context.execute(query);
-		}
-		this.context.createSequence(DEPARTMENT_ID_SEQ).execute();
-		this.context.createSequence(DISEASE_ID_SEQ).execute();
-		this.context.createSequence(RECORD_ID_SEQ).execute();
-		this.context.createSequence(REPORT_ID_SEQ).execute();
-	}
-
-	@After
-	public void databaseTeardown() {
-		this.context.dropSchema(Medical.MEDICAL).execute();
+	public void testSetup() {
+		// mockMvc setup
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webContext)
+				.apply(documentationConfiguration(this.restDocumentation))
+				.build();
 	}
 
 	@Test
@@ -95,9 +88,12 @@ public class FileProcessorApplicationTests {
 	@Test
 	public void successfulExampleFilePost() throws Exception {
 		MockMultipartFile theFile = new MockMultipartFile("file", "example.xml", "application/xml", new FileInputStream("example.xml"));
-		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isOk()).andExpect(content().string("You successfully uploaded the file!"));
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isOk())
+					.andExpect(content().string("You successfully uploaded the file!"));
 
 		theFile = new MockMultipartFile("file", "example.json", "", new FileInputStream("example.json"));
-		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isOk()).andExpect(content().string("You successfully uploaded the file!"));
+		this.mockMvc.perform(fileUpload("/").file(theFile)).andExpect(status().isOk())
+					.andExpect(content().string("You successfully uploaded the file!"))
+					.andDo(document("index"));
 	}
 }
