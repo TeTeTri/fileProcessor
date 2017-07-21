@@ -11,8 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.web.bind.annotation.*;
 
-import com.assignment.fileProcessor.logic.DoctorDTO;
-import com.assignment.fileProcessor.logic.DataManager;
+import com.assignment.fileProcessor.logic.*;
 
 @RestController
 public class WebController implements ErrorController {
@@ -24,10 +23,25 @@ public class WebController implements ErrorController {
 	private DataManager manager;
 
 	@GetMapping("/")
-	public String get() {
+	public String home() {
 		return "Hello World!";
 	}
 
+	@GetMapping("/doctors")
+	public String getDoctors() {
+		return this.manager.getDoctors().formatHTML();
+	}
+	
+	@GetMapping("/patients")
+	public String getPatients() {
+		return this.manager.getPatients().formatHTML();
+	}
+	
+	@GetMapping("/diseases")
+	public String getDiseases() {
+		return this.manager.getDiseases().formatHTML();
+	}
+	
 	@GetMapping(ERROR_PATH)
 	public String error() {
 		return "Oops!";

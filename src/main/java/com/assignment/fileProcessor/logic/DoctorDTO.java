@@ -2,9 +2,8 @@ package com.assignment.fileProcessor.logic;
 
 import java.util.List;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.dataformat.xml.annotation.*;
 
 @JacksonXmlRootElement(localName = "doctor")
 public class DoctorDTO {
@@ -28,9 +27,14 @@ public class DoctorDTO {
 
 	@Override
 	public String toString() {
-		return String.format("[ID: %d, DEPARTMENT: %s, PATIENTS: %s]", this.id, this.department, this.patients.toString());
+		return String.format("{ID: %d, DEPARTMENT: %s}", this.id, this.department);
 	}
-	
+
+	public String toStringAll() {
+		return String.format("{ID: %d, DEPARTMENT: %s, PATIENTS: %s}", this.id, this.department, this.patients.toString());
+	}
+
+	@JsonIgnore
 	public boolean isEmpty() {
 		return (this.department == null) || (this.patients == null) || this.patients.isEmpty();
 	}

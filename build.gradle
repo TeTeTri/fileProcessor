@@ -13,10 +13,12 @@ repositories {
 }
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
-    compile('org.springframework.boot:spring-boot-starter-jooq')
     compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-jooq')
+    compile('com.fasterxml.jackson.dataformat:jackson-dataformat-xml')
     runtime('com.h2database:h2')
     runtime('org.postgresql:postgresql')
     testCompile('org.springframework.boot:spring-boot-starter-test')
@@ -44,6 +46,9 @@ buildscript {
 jooq {
     version = '3.9.3'
     edition = 'OSS'
+    dependencies {
+        jooqRuntime('org.postgresql:postgresql:42.1.1')
+    }
     databaseToXML(sourceSets.main) {
         jdbc {
             driver = 'org.postgresql.Driver'
@@ -61,9 +66,6 @@ jooq {
                 directory = 'src/main/resources'
             }
         }
-    }
-    dependencies {
-        jooqRuntime('org.postgresql:postgresql:42.1.1')
     }
     xmlToAPI(sourceSets.main) {
         generator {

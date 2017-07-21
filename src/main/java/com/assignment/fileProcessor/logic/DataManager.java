@@ -9,6 +9,8 @@ import java.util.InputMismatchException;
 
 import org.jooq.DSLContext;
 import org.jooq.InsertSetMoreStep;
+import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -116,5 +118,24 @@ public class DataManager {
 		if (exception != null) {
 			throw exception;
 		}
+	}
+	
+	public Result<? extends Record> getDoctors() {
+		return this.context.select(DOCTOR.DOCTOR_ID, DEPARTMENT.NAME)
+				.from(DOCTOR, DEPARTMENT)
+				.where(DOCTOR.DEPARTMENT_ID.eq(DEPARTMENT.DEPARTMENT_ID))
+				.fetch();
+	}
+	
+	public Result<? extends Record> getPatients() {
+		return this.context.select(PATIENT.PATIENT_ID, PATIENT.FIRST_NAME, PATIENT.LAST_NAME)
+				.from(PATIENT)
+				.fetch();
+	}
+	
+	public Result<? extends Record> getDiseases() {
+		return this.context.select(DISEASE.NAME)
+				.from(DISEASE)
+				.fetch();
 	}
 }

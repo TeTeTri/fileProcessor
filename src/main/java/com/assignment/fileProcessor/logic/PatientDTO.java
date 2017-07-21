@@ -2,10 +2,8 @@ package com.assignment.fileProcessor.logic;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.dataformat.xml.annotation.*;
 
 @JacksonXmlRootElement(localName = "patient")
 public class PatientDTO {
@@ -32,9 +30,14 @@ public class PatientDTO {
 	
 	@Override
 	public String toString() {
-		return String.format("[ID: %d, FIRST NAME: %s, LAST NAME: %s, DISEASES: %s]", this.id, this.firstName, this.lastName, this.diseases.toString());
+		return String.format("{ID: %d, FIRST NAME: %s, LAST NAME: %s}", this.id, this.firstName, this.lastName);
 	}
 	
+	public String toStringAll() {
+		return String.format("{ID: %d, FIRST NAME: %s, LAST NAME: %s, DISEASES: %s}", this.id, this.firstName, this.lastName, this.diseases.toString());
+	}
+	
+	@JsonIgnore
 	public boolean isEmpty() {
 		return (this.firstName == null) || (this.lastName == null) || (this.diseases == null) || this.diseases.isEmpty();
 	}
